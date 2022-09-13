@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -5,17 +6,29 @@ public class NetworkStartup : MonoBehaviour
 {
     private void Start()
     {
-        byte playerPrefabHash = (byte) (SceneTransitionHandler.Instance.isXR ? 1 : 2);
+        _ = SetupRelayNetwork();
+    }
+
+    private async Task SetupRelayNetwork()
+    {
+        byte playerPrefabHash = (byte)(SceneTransitionHandler.Instance.isXR ? 1 : 2);
         byte[] connectionData = new byte[1] { playerPrefabHash };
         NetworkManager.Singleton.NetworkConfig.ConnectionData = connectionData;
 
         if (SceneTransitionHandler.Instance.InitializeAsHost)
         {
+            if (RelayManager.Instance.IsRelayEnabled)
+                await RelayManager.Instance.SetupRelay();
+
             NetworkManager.Singleton.ConnectionApprovalCallback = ApprovalCheck;
             NetworkManager.Singleton.StartHost();
         }
         else
         {
+            string joinCode = SceneTransitionHandler.Instance.joinCode;
+            if (RelayManager.Instance.IsRelayEnabled)
+                await RelayManager.Instance.JoinRelay(joinCode);
+
             NetworkManager.Singleton.StartClient();
         }
     }

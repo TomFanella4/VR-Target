@@ -26,19 +26,21 @@ public class SceneTransitionHandler : Singleton<SceneTransitionHandler>
 
     public bool isXR { get; set; }
 
+    public string joinCode { get; set; }
+
     private void Update()
     {
         // for testing only
-        if(Input.GetKeyDown(KeyCode.H))
-        {
-            InitializeAsHost = true;
-            Initialize();
-        }
-        if(Input.GetKeyDown(KeyCode.C))
-        {
-            InitializeAsHost = false;
-            Initialize();
-        }
+        //if(Input.GetKeyDown(KeyCode.H))
+        //{
+        //    InitializeAsHost = true;
+        //    Initialize();
+        //}
+        //if(Input.GetKeyDown(KeyCode.C))
+        //{
+        //    InitializeAsHost = false;
+        //    Initialize();
+        //}
     }
 
     /// <summary>

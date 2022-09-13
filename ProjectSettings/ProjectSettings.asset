@@ -149,6 +149,8 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: -6924800126327145398, guid: 4cb652d03ebcc50448a5a9f9a1edc5ff, type: 2}
   - {fileID: 3063154399122232603, guid: f4d80ad2c529d814d8e42df800e0b28e, type: 2}
   - {fileID: 0}
@@ -858,7 +860,13 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Build: 0
+    Collab: 0
+    Game Performance: 0
+    Purchasing: 0
+    UDP: 0
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -872,11 +880,11 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 2
-  cloudProjectId: 
+  cloudProjectId: fa7fe503-a63e-43c9-ad71-89aa09cf939a
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: VR Target Shooter
+  organizationId: tomfanella4
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 
