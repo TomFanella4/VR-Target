@@ -1,33 +1,30 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MobileUIManager : MonoBehaviour
 {
-    [SerializeField]
-    private Button startHostButton;
-
     [SerializeField]
     private Button startClientButton;
 
     [SerializeField]
     private TMP_InputField joinCodeInput;
 
+    [SerializeField]
+    private GameObject loadingText;
+
+    [SerializeField]
+    private GameObject mobilePlayer;
+
     private void Start()
     {
-        startHostButton.onClick.AddListener(() =>
-        {
-            SceneTransitionHandler.Instance.isXR = false;
-            SceneTransitionHandler.Instance.InitializeAsHost = true;
-            SceneTransitionHandler.Instance.Initialize();
-        });
-
         startClientButton.onClick.AddListener(() =>
         {
-            SceneTransitionHandler.Instance.isXR = false;
-            SceneTransitionHandler.Instance.InitializeAsHost = false;
-            SceneTransitionHandler.Instance.joinCode = joinCodeInput.text;
-            SceneTransitionHandler.Instance.Initialize();
+            joinCodeInput.gameObject.SetActive(false);
+            startClientButton.gameObject.SetActive(false);
+            loadingText.SetActive(true);
+            RelayManager.Instance.JoinRelayGame(joinCodeInput.text);
         });
     }
 }

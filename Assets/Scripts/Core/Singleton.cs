@@ -29,5 +29,19 @@ namespace VRTargetShooter.Core.Singletons
                 return _instance;
             }
         }
+
+        public virtual void Awake()
+        {
+            // create the instance
+            if (_instance == null)
+            {
+                _instance = this as T;
+                DontDestroyOnLoad(this.gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
     }
 }

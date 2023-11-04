@@ -1,94 +1,44 @@
-using System.Threading.Tasks;
+using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Services.Core.Environments;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
-using UnityEngine;
+using Unity.Networking.Transport.Relay;
 using VRTargetShooter.Core.Singletons;
+using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 public class RelayManager : Singleton<RelayManager>
 {
-    [SerializeField]
-    private string environment = "production";
+    private UnityTransport transport;
 
-    [SerializeField]
-    private int maxConnections = 10;
-
-    public bool IsRelayEnabled => Transport != null &&
-        Transport.Protocol == UnityTransport.ProtocolType.RelayUnityTransport;
-
-    public UnityTransport Transport => NetworkManager.Singleton.gameObject.GetComponent<UnityTransport>();
-
-    public async Task<RelayHostData> SetupRelay()
+    // Start is called before the first frame update
+    void Start()
     {
-        Debug.Log($"Relay Server Starting with max connections {maxConnections}");
-
-        InitializationOptions options = new InitializationOptions()
-            .SetEnvironmentName(environment);
-
-        await UnityServices.InitializeAsync(options);
-
-        if (!AuthenticationService.Instance.IsSignedIn)
-        {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
-
-        Allocation allocation = await Relay.Instance.CreateAllocationAsync(maxConnections);
-
-        RelayHostData relayHostData = new RelayHostData
-        {
-            Key = allocation.Key,
-            Port = (ushort)allocation.RelayServer.Port,
-            AllocationID = allocation.AllocationId,
-            AllocationIDBytes = allocation.AllocationIdBytes,
-            IPv4Address = allocation.RelayServer.IpV4,
-            ConnectionData = allocation.ConnectionData
-        };
-
-        relayHostData.JoinCode = await Relay.Instance.GetJoinCodeAsync(relayHostData.AllocationID);
-
-        Transport.SetRelayServerData(relayHostData.IPv4Address, relayHostData.Port, relayHostData.AllocationIDBytes,
-            relayHostData.Key, relayHostData.ConnectionData);
-
-        Debug.Log($"Relay Server generated a join code {relayHostData.JoinCode}");
-
-        return relayHostData;
+        transport = GetComponent<UnityTransport>();
     }
 
-    public async Task<RelayJoinData> JoinRelay(string joinCode)
+    public async void CreateRelayGame(int maxPlayer)
     {
-        InitializationOptions options = new InitializationOptions()
-            .SetEnvironmentName(environment);
+        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayer);
 
-        await UnityServices.InitializeAsync(options);
+        string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-        if (!AuthenticationService.Instance.IsSignedIn)
-        {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
+        Debug.Log("THE JOIN CODE IS : " + joinCode);
 
-        JoinAllocation allocation = await Relay.Instance.JoinAllocationAsync(joinCode);
+        RelayServerData serverData = new(allocation, "dtls");
+        transport.SetRelayServerData(serverData);
+        NetworkManager.Singleton.StartHost();
 
-        RelayJoinData relayJoinData = new RelayJoinData
-        {
-            Key = allocation.Key,
-            Port = (ushort)allocation.RelayServer.Port,
-            AllocationID = allocation.AllocationId,
-            AllocationIDBytes = allocation.AllocationIdBytes,
-            IPv4Address = allocation.RelayServer.IpV4,
-            ConnectionData = allocation.ConnectionData,
-            HostConnectionData = allocation.HostConnectionData,
-            JoinCode = joinCode
-        };
+        NetworkManager.Singleton.SceneManager.LoadScene("MainScene", LoadSceneMode.Single);
+    }
 
-        Transport.SetRelayServerData(relayJoinData.IPv4Address, relayJoinData.Port, relayJoinData.AllocationIDBytes,
-            relayJoinData.Key, relayJoinData.ConnectionData, relayJoinData.HostConnectionData);
+    public async void JoinRelayGame(string joinCode)
+    {
+        JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
-        Debug.Log($"Client joined game with join code {joinCode}");
-
-        return relayJoinData;
+        RelayServerData serverData = new(allocation, "dtls");
+        transport.SetRelayServerData(serverData);
+        NetworkManager.Singleton.StartClient();
     }
 }
